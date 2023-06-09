@@ -1,0 +1,37 @@
+---
+  - hosts: webservers
+    become: yes
+    tasks:
+      - name: Allow APT To Use HTTPS for Repos 
+        apt:
+          pkg: 
+          - ca-certificates
+          - curl
+          - gnupg
+      - name: Add Docker GPG Key
+        apt_key:
+          url: https://download.docker.com/linux/ubuntu/gpg
+          state: present
+      - name: Add Docker Repo
+        apt_repository:
+          repo: deb https://download.docker.com/linux/ubuntu/ focal stable
+          state: present
+          update_cache: yes
+      - name: Install Docker
+        apt:
+          pkg:
+          - docker-ce 
+          - docker-ce-cli 
+          - containerd.io 
+          - docker-buildx-plugin 
+          - docker-compose-plugin
+      - name: Start Docker
+        service:
+          name: docker
+          state: started
+          enabled: yes
+      - name: Add User to Docker Group
+        user:
+          name: <virtual-machine-username>
+          uid: 1000
+          group: docker

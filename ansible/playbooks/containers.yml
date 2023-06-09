@@ -1,0 +1,16 @@
+---
+  - hosts: webservers
+    become: yes
+    tasks:
+      - name: Initialise Docker Swarm
+        command: "docker swarm init"
+      - name: Make Public Network
+        command: "docker network create --driver overlay --subnet=172.16.1.0/24 --gateway=172.16.1.1 --ip-range=172.16.1.0/24 public"
+      - name: Deploy Traefik
+        command: "docker stack deploy traefik -c /media/data/docker/traefik/traefik.yml"
+      - name: Deploy Beets
+        command: "docker stack deploy beets -c /media/data/docker/beets/beets.yml"
+      - name: Deploy BabyBuddy
+        command: "docker stack deploy babybuddy -c /media/data/docker/babybuddy/babybuddy.yml"
+      - name: Deploy WikiJS
+        command: "docker stack deploy homeassistant -c /media/data/docker/wikijs/wikijs.yml"

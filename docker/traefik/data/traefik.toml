@@ -1,0 +1,38 @@
+[providers.docker]
+  endpoint = "unix:///var/run/docker.sock"
+  swarmMode = true
+  watch = true 
+
+[entryPoints]
+[entryPoints.web]
+  address = ":80"
+    [entryPoints.web.http.redirections]
+      [entryPoints.web.http.redirections.entryPoint]
+        to = "websecure"
+        scheme = "https"
+[entryPoints.websecure]
+  address = ":443"
+  [entryPoints.websecure.http.tls]
+    certResolver = "letsencrypt"
+
+[certificatesResolvers.letsencrypt.acme]
+  email = "admin@cloudby.click"
+  storage = "acme.json"
+  caServer = "https://acme-v02.api.letsencrypt.org/directory"
+  #caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+  [certificatesResolvers.letsencrypt.acme.dnsChallenge]
+    provider = "cloudflare"
+  [certificatesResolvers.letsencrypt.acme.tlsChallenge]
+  [certificatesResolvers.letsencrypt.acme.httpChallenge]
+    entryPoint = "web"
+
+[api]
+  dashboard = true
+  debug = true
+
+[log]
+  level = "INFO"
+  filePath = "/var/log/traefik.log"
+
+[global]
+  checkNewVersion = true

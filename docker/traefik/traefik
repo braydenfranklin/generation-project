@@ -1,0 +1,39 @@
+version: '3.0'
+services:
+  app:
+    image:
+    env_file:
+      - ./env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data/traefik.toml:/traefik.toml
+      - ./data/acme.json:/acme.json
+      - ./data/traefik.log:/var/log/traefik.log
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+      - target: 8080
+        published: 8080
+        protocol: tcp
+    networks:
+      - public
+    deploy:
+      labels:
+        - traefik.docker.network=public
+        - traefik.http.routers.api.rule=Host(`traefik.cloudby.click`)
+        - traefik.http.routers.api.entrypoints=websecure  
+        - traefik.http.routers.api.tls=true
+        - traefik.http.routers.api.tls.certresolver=letsencrypt
+        - traefik.http.routers.api.service=api@internal
+      placement:
+        constraints:
+          - node.role == manager
+networks:
+  public:
+    external: true

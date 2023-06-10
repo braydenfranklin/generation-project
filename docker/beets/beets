@@ -1,0 +1,23 @@
+version: '3.0'
+services:
+  app:
+    image:
+    env_file:
+      - ./env
+    volumes:
+      - ./config:/config
+      - ./library:/music
+      - ./downloads:/downloads
+    networks:
+      - public
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=public
+        - traefik.http.routers.beets.rule=Host(`beets.cloudby.click`)
+        - traefik.http.routers.beets.entrypoints=websecure
+        - traefik.http.routers.beets.tls.certResolver=letsencrypt
+        - traefik.http.services.beets.loadbalancer.server.port=8337
+networks:
+  public:
+    external: true
